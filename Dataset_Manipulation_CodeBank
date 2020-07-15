@@ -1,0 +1,103 @@
+The following code index represents examples of solutions to common tidyness problems.
+A theoretical dataset "Jobs" will be used for an example throughout the document.
+"Jobs" includes variables like occupation, highest degree earned, salary, etc.
+A summary of the codes' intention will be provided following the examples.
+Use a keyword search to navigate to the code of interest.
+
+Recoding Variable Values
+  Dataset$XVariable[Dataset$XVariable == Value to Recode ] <- Recode
+    EX) Jobs$Occupation[HSLS$Occupation == 0] <- "NA"
+    EX) Jobs$Occupation[HSLS$Occupation < 0] <- "NA"
+    EX) Jobs$Occupation[HSLS$Occupation == 4 | HSLS$Occupation == 5] <- "Consulting"
+    ---Change numeric values to string, name levels of variable, index similar levels into one---
+    
+    
+Basic Counts Table
+  Dataset %>%
+    group_by(Row_Variable) %>%
+    group_by(Column_Variable) %>%
+    summarise(n = sum(!is.na(Column_Variable))) -> My_Table
+      EX) Jobs %>%
+            group_by(Highest_Degree) %>%
+            group_by(Occupation) %>%
+            summarise(n = sum(!is.na(Occupation))) -> Occupation_Race_Counts
+   ---Provide a "pivot table" for counts---
+                
+ Joining Multiple Datasets
+    1. First, rename the dataset variable to match your other datasets
+      rename(Dataset, 
+       "New Variable Name" = 
+       `Current Variable Name`) -> Dataset
+            EX) rename(Jobs, 
+                  "Total_Salary" = 
+                  `Salary`) -> Jobs
+         
+    2. Next, join the datasets by the matching variable name
+      left_join(Dataset, Dataset2, 
+          "New Variable Name") -> New_Dataset
+              EX)   left_join(Jobs, Euro_Jobs, 
+                    "Total_Salary") -> Global_Jobs
+                    
+ Changing Data Type to Numeric
+    Dataset %>%
+      transform(Dataset, `Variable` = as.numeric(`Variable`)
+         EX) Jobs%>%
+               transform(Jobs, `Salary` = as.numeric(`Salary`) -> Jobs
+               ---Changes salary, which was miscoded as string into a numeric data type---
+               
+Tidying Tall Dataset (repeated row subjects) Using Time Series
+  Dataset %>%
+     group_by(Unique Identifying Variable) %>%
+     arrange(Time Series Variable) %>%
+     mutate(New_Variable_Name = row_number()) -> Dataset
+        EX) Jobs %>%
+              group_by(Participant_ID) %>%
+              arrange(Order_of_Prior_Occupation) %>%
+              mutate(Job_Order = row_number()) -> Dataset
+  ---This adds a new variable showing the order (oldest to newest) based on the time series variable---
+
+   Dataset %>%
+     pivot_wider(names_from = New_Variable_Name, values_from = c(First_Column:Last_Column)) -> Tidy_Dataset
+       EX) Jobs %>%
+              pivot_wider(names_from = Job_Order, values_from = c(Participant_ID:Salary)) -> Tidy_Jobs
+  ---This spreads the data based on the job order, so each particpant is in one row and the variables repeat based on each job, in order from first to last---
+  
+Taking the average of multiple variables for every row
+   Dataset %>%
+      mutate(Averaged_Variable_Name = (rowMeans
+                                        (select
+                                          (Dataset, First_Variable:Last_variable), na.rm = T))) -> Dataset
+                                          
+          EX) Jobs %>%
+                 mutate(Average_Salary = (rowMeans
+                                           (select
+                                             (Jobs, 1_Salary:10_Salary), na.rm = T))) -> Dataset
+   ---Creates a new variable that takes the average of multiple columns; "&" can be used if they are not adjacent---
+   
+Removing data based on variable values   
+    subset(Dataset, 
+            `Variable` == "String_Value -> Dataset
+    subset(Dataset, 
+            `Variable` == # |
+            `Variable2` > # |
+            `Variable3` != #) -> Dataset
+       EX) subset(Jobs, 
+                    `Salary` >= 500,000 |
+                    `Debt` <= 50,000 |
+                    `Arrests` = 0) -> Ideal_Homebuyer_Jobs
+    ---Reduces target dataset to the parameters set for the target variable(s)---
+
+Copying the first non-NA value across multiple variables for every row in the dataset
+    Dataset %>%
+      rowwise() %>%
+      mutate(New_Variable Name = first(na.omit
+                                        (c_across(First_Target_Variable:Last_Target_Variable)))) -> Dataset  
+         EX) Jobs %>%
+                rowwise() %>%
+                mutate(First_Salary = first(na.omit
+                                             (c_across(Salary_1960:Salary_2020)))) -> Jobs
+     ---Produces a new variable that identifies and copies the first non-NA value in a series of variables---
+    
+ 
+   
+ 
