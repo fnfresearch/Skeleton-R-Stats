@@ -10,18 +10,6 @@ Recoding Variable Values
     EX) Jobs$Occupation[HSLS$Occupation < 0] <- "NA"
     EX) Jobs$Occupation[HSLS$Occupation == 4 | HSLS$Occupation == 5] <- "Consulting"
     ---Change numeric values to string, name levels of variable, index similar levels into one---
-    
-    
-Basic Counts Table
-  Dataset %>%
-    group_by(Row_Variable) %>%
-    group_by(Column_Variable) %>%
-    summarise(n = sum(!is.na(Column_Variable))) -> My_Table
-      EX) Jobs %>%
-            group_by(Highest_Degree) %>%
-            group_by(Occupation) %>%
-            summarise(n = sum(!is.na(Occupation))) -> Occupation_Race_Counts
-   ---Provide a "pivot table" for counts---
                 
  Joining Multiple Datasets
     1. First, rename the dataset variable to match your other datasets
